@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VisiumHD Pipeline | Spatial Transcriptomics Analysis</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --accent3: #f78166;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --code-bg: #1f2937;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(13,17,23,0.9);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+    .nav-logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--text); }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent);
+      color: #0d1117;
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(88,166,255,0.1);
+      border: 1px solid rgba(88,166,255,0.3);
+      color: var(--accent);
+      font-size: 0.78rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.5px;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1.2rem;
+      background: linear-gradient(135deg, #e6edf3 30%, #58a6ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 580px;
+      margin: 0 auto 2rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent);
+      color: #0d1117;
+      padding: 0.7rem 1.6rem;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-secondary {
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.7rem 1.6rem;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--muted); }
+
+    /* STATS STRIP */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* SECTIONS */
+    section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+    h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 3rem;
+      max-width: 540px;
+    }
+
+    /* PIPELINE STEPS */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .step-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .step-num {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: rgba(88,166,255,0.08);
+      line-height: 1;
+    }
+    .step-icon {
+      font-size: 1.6rem;
+      margin-bottom: 0.8rem;
+    }
+    .step-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: var(--text);
+    }
+    .step-card p { font-size: 0.875rem; color: var(--muted); }
+    .step-tag {
+      display: inline-block;
+      background: rgba(63,185,80,0.1);
+      border: 1px solid rgba(63,185,80,0.25);
+      color: var(--accent2);
+      font-size: 0.72rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-top: 0.8rem;
+    }
+
+    /* CODE BLOCK */
+    .code-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-dots { display: flex; gap: 0.4rem; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background: #ff5f57; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #28ca41; }
+    .code-title { font-size: 0.8rem; color: var(--muted); }
+    .code-body {
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+    pre {
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .kw { color: #ff7b72; }
+    .fn { color: #d2a8ff; }
+    .str { color: #a5d6ff; }
+    .cm { color: var(--muted); font-style: italic; }
+    .num { color: #f78166; }
+
+    /* FEATURES GRID */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      transition: border-color 0.2s;
+    }
+    .feature:hover { border-color: var(--accent2); }
+    .feature-icon { font-size: 1.4rem; margin-bottom: 0.6rem; }
+    .feature h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .feature p { font-size: 0.8rem; color: var(--muted); }
+
+    /* INSTALL */
+    .install-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: var(--accent2);
+      max-width: 500px;
+    }
+    .install-box span { color: var(--muted); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* DIVIDER */
+    .divider { border: none; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Visium<span>HD</span> Pipeline</div>
+  <div class="nav-links">
+    <a href="#pipeline">Pipeline</a>
+    <a href="#quickstart">Quickstart</a>
+    <a href="#features">Features</a>
+  </div>
+  <a href="pipeline.py" class="nav-cta">View Script</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">10x Genomics Visium HD · Scanpy · Squidpy</div>
+  <h1>Spatial Transcriptomics<br/>Analysis Pipeline</h1>
+  <p>
+    End-to-end analysis of 10X Visium HD data — from raw counts to
+    spatially resolved gene expression, clustering, and publication-ready figures.
+  </p>
+  <div class="hero-actions">
+    <a href="#quickstart" class="btn-primary">Get Started</a>
+    <a href="#pipeline" class="btn-secondary">View Pipeline</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">8</div>
+    <div class="stat-label">Pipeline Steps</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">HD</div>
+    <div class="stat-label">2 &micro;m Resolution</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">~2 μm</div>
+    <div class="stat-label">Spot Size</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">scanpy</div>
+    <div class="stat-label">Core Engine</div>
+  </div>
+</div>
+
+<!-- PIPELINE STEPS -->
+<section id="pipeline">
+  <div class="section-label">Pipeline</div>
+  <h2>From raw data to insight</h2>
+  <p class="section-sub">
+    Each step is modular — run the full pipeline or plug in individual components
+    to your existing workflow.
+  </p>
+  <div class="steps">
+
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <div class="step-icon">📂</div>
+      <h3>Load &amp; Parse</h3>
+      <p>Read Visium HD output (filtered feature-barcode matrix + tissue positions) using <code>scanpy.read_visium</code>.</p>
+      <span class="step-tag">sc.read_visium</span>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <div class="step-icon">🔬</div>
+      <h3>Quality Control</h3>
+      <p>Filter spots and genes by count thresholds, mitochondrial percentage, and spatial tissue mask.</p>
+      <span class="step-tag">sc.pp.calculate_qc_metrics</span>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <div class="step-icon">📐</div>
+      <h3>Normalization</h3>
+      <p>Library-size normalization to 10,000 counts per spot followed by log1p transformation.</p>
+      <span class="step-tag">sc.pp.normalize_total</span>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">04</div>
+      <div class="step-icon">🧬</div>
+      <h3>Feature Selection</h3>
+      <p>Identify highly variable genes using the Seurat v3 method for downstream dimensionality reduction.</p>
+      <span class="step-tag">sc.pp.highly_variable_genes</span>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">05</div>
+      <div class="step-icon">📉</div>
+      <h3>Dimensionality Reduction</h3>
+      <p>PCA on HVGs, followed by neighborhood graph construction and UMAP embedding.</p>
+      <span class="step-tag">sc.tl.pca · sc.tl.umap</span>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">06</div>
+      <div class="step-icon">🗂️</div>
+      <h3>Clustering</h3>
+      <p>Leiden community detection at multiple resolutions. Annotate clusters with known markers.</p>
+      <span class="step-tag">sc.tl.leiden</span>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">07</div>
+      <div class="step-icon">🗺️</div>
+      <h3>Spatial Visualization</h3>
+      <p>Overlay clusters and gene expression on H&amp;E image. Compute spatial neighbors with Squidpy.</p>
+      <span class="step-tag">sq.pl.spatial_scatter</span>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">08</div>
+      <div class="step-icon">📊</div>
+      <h3>Spatially Variable Genes</h3>
+      <p>Identify genes with spatially structured expression using Moran's I autocorrelation test.</p>
+      <span class="step-tag">sq.gr.spatial_autocorr</span>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- QUICKSTART -->
+<section id="quickstart">
+  <div class="section-label">Quickstart</div>
+  <h2>Up and running in minutes</h2>
+  <p class="section-sub">Install dependencies, point to your data folder, and run.</p>
+
+  <p style="color:var(--muted); font-size:0.85rem; margin-bottom:0.75rem;">1. Install dependencies</p>
+  <div class="install-box" style="margin-bottom:2rem;">
+    <span>$</span> pip install -r requirements.txt
+  </div>
+
+  <p style="color:var(--muted); font-size:0.85rem; margin-bottom:0.75rem;">2. Run the pipeline</p>
+  <div class="code-section">
+    <div class="code-header">
+      <div class="code-dots">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <div class="code-title">pipeline.py — minimal usage</div>
+    </div>
+    <div class="code-body">
+<pre><span class="kw">from</span> pipeline <span class="kw">import</span> VisiumHDPipeline
+
+<span class="cm"># Point to your Space Ranger output folder</span>
+pipe = <span class="fn">VisiumHDPipeline</span>(
+    data_dir=<span class="str">"/path/to/spaceranger/output"</span>,
+    bin_size=<span class="num">8</span>,           <span class="cm"># μm binning: 2, 8, or 16</span>
+    output_dir=<span class="str">"./results"</span>,
+)
+
+<span class="cm"># Run full pipeline end-to-end</span>
+adata = pipe.<span class="fn">run</span>()
+
+<span class="cm"># Or run steps individually</span>
+adata = pipe.<span class="fn">load</span>()
+adata = pipe.<span class="fn">qc</span>(adata, min_counts=<span class="num">100</span>, max_mt_pct=<span class="num">20</span>)
+adata = pipe.<span class="fn">normalize</span>(adata)
+adata = pipe.<span class="fn">cluster</span>(adata, resolution=<span class="num">0.5</span>)
+pipe.<span class="fn">plot_spatial</span>(adata, color=<span class="str">"leiden"</span>)</pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-label">Features</div>
+  <h2>Built for HD resolution</h2>
+  <p class="section-sub">Handles the scale and structure of Visium HD datasets out of the box.</p>
+
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <h4>Multi-bin Support</h4>
+      <p>Automatic loading for 2 μm, 8 μm, and 16 μm bin sizes.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🖼️</div>
+      <h4>H&amp;E Overlay</h4>
+      <p>Spatial plots rendered directly on top of the histology image.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">💾</div>
+      <h4>AnnData Native</h4>
+      <p>Fully compatible with the AnnData/Scanpy ecosystem. Save &amp; reload at any step.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔁</div>
+      <h4>Modular Steps</h4>
+      <p>Run the full pipeline or drop individual steps into your existing workflow.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📈</div>
+      <h4>SVG Detection</h4>
+      <p>Spatially variable gene detection via Moran's I and Geary's C statistics.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔬</div>
+      <h4>Marker Scoring</h4>
+      <p>Score spots for known cell-type marker gene sets using <code>sc.tl.score_genes</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  Built with
+  <a href="https://scanpy.readthedocs.io" target="_blank">Scanpy</a> ·
+  <a href="https://squidpy.readthedocs.io" target="_blank">Squidpy</a> ·
+  <a href="https://anndata.readthedocs.io" target="_blank">AnnData</a>
+  &nbsp;|&nbsp;
+  10X Genomics Visium HD Analysis Pipeline
+</footer>
+
+</body>
+</html>
